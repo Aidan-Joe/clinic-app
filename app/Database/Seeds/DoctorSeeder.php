@@ -6,34 +6,18 @@ use CodeIgniter\Database\Seeder;
 
 class DoctorSeeder extends Seeder
 {
-    public function run()
-    {
-       
-        $faker = \Faker\Factory::create('id_ID');
+public function run()
+{
+    $this->db->table('doctor')->truncate();
 
-        $specializations = [
-            'General Practitioner',
-            'Pediatrician',
-            'Cardiologist',
-            'Dermatologist',
-            'Neurologist',
-            'Orthopedic',
-            'Dentist',
-            'Psychiatrist'
-        ];
+    $data = [
+        ['DoctorCode'=>'DC001','Doctor_name'=>'Dr. Hendra Wijaya','Specialization'=>'Cardiology','Doctor_email'=>'hendra@email.com','Phone'=>'081111111','Availability'=>'Available'],
+        ['DoctorCode'=>'DC002','Doctor_name'=>'Dr. Sari Rahayu','Specialization'=>'General Practice','Doctor_email'=>'sari@email.com','Phone'=>'082222222','Availability'=>'Available'],
+        ['DoctorCode'=>'DC003','Doctor_name'=>'Dr. Wahyu Nugroho','Specialization'=>'Dermatology','Doctor_email'=>'wahyu@email.com','Phone'=>'083333333','Availability'=>'Not Available'],
+        ['DoctorCode'=>'DC004','Doctor_name'=>'Dr. Andi Permana','Specialization'=>'Neurology','Doctor_email'=>'andi@email.com','Phone'=>'084444444','Availability'=>'Available'],
+        ['DoctorCode'=>'DC005','Doctor_name'=>'Dr. Fitri Handayani','Specialization'=>'Pediatrics','Doctor_email'=>'fitri@email.com','Phone'=>'085555555','Availability'=>'Available'],
+    ];
 
-        for ($i = 1; $i <= 20; $i++) {
-
-            $data = [
-                'DoctorCode'      => 'D' . str_pad($i, 4, '0', STR_PAD_LEFT), // D0001
-                'Doctor_name'     => $faker->name(),
-                'Specialization'  => $faker->randomElement($specializations),
-                'Doctor_email'    => $faker->unique()->safeEmail(),
-                'Phone'           => '08' . $faker->numerify('##########'),
-                'Availability'    => $faker->randomElement(['Available', 'Not Available']),
-            ];
-
-            $this->db->table('doctor')->insert($data);
-        }
-    }
+    $this->db->table('doctor')->insertBatch($data);
+}
 }
