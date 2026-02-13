@@ -13,7 +13,7 @@ class Patient extends BaseController
         $data = [
             'authName' => 'Rina Ayu Lestari',
             'authCode' => 'PT001',
-            'notifCount' => 2,
+            'notifCount' => 3,
         ];
         
         return view('patient_view', $data);
