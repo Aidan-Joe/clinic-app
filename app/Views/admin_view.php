@@ -81,13 +81,13 @@ $activeNav   = 'dashboard';
                 <div class="td--muted"><?= esc($appt['spec']) ?></div>
               </td>
               <td><?= esc($appt['room'] ?? '-') ?></td>
-              <td><?= esc($appt['time']) ?></td>
+              <td><?= esc($appt['Appointment_time']) ?></td>
               <td class="td--muted" style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                <?= esc($appt['symptoms']) ?>
+                <?= esc($appt['Symptoms']) ?>
               </td>
               <td>
-                <span class="badge badge--<?= esc($appt['status']) ?>">
-                  <?= ucfirst((string) $appt['status']) ?>
+                <span class="badge badge--<?= esc($appt['Status']) ?>">
+                  <?= ucfirst((string) $appt['Status']) ?>
                 </span>
               </td>
             </tr>
