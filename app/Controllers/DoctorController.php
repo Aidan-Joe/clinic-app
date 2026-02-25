@@ -12,67 +12,62 @@ class DoctorController extends BaseController
 {
     public function index()
     {
-        // Simple data for testing the view
-        $data = [
-            'authName' => 'Dr. Hendra Wijaya',
-            'authCode' => 'DC001',
-            'authSpec' => 'Cardiology',
-            'authAvailable' => 'Available',
-            'notifCount' => 3,
-        ];
-        
-        return view('doctor_view', $data);
-        $doctorCode = session()->get('DoctorCode'); 
-
-        $appointmentModel = new AppointmentModel();
-        $recordModel      = new MedicalRecordModel();
-        $roomModel        = new RoomModel();
-
-        $today = date('Y-m-d');
-
-        $data['stats'] = [
-            'appointments_today' => $appointmentModel
-                ->where('DoctorCode', $doctorCode)
-                ->where('Appointment_date', $today)
-                ->countAllResults(),
-
-            'completed' => $appointmentModel
-                ->where('DoctorCode', $doctorCode)
-                ->where('Status', 'completed')
-                ->countAllResults(),
-
-            'total_patients' => $appointmentModel
-                ->where('DoctorCode', $doctorCode)
-                ->distinct()
-                ->countAllResults('Patientcode'),
-
-            'records_pending' => 0
-        ];
-
-        $data['queue'] = $appointmentModel
-            ->where('DoctorCode', $doctorCode)
-            ->where('Appointment_date', $today)
-            ->findAll();
-
-        $data['recentRecords'] = $recordModel
-            ->orderBy('Visit_date', 'DESC')
-            ->findAll(5);
-
-        $data['myRoom'] = $roomModel
-            ->where('Status', 'Occupied')
-            ->first();
+        $model = new DoctorModel();
+        $data['doctors'] = $model->findAll();
 
         return view('doctor/index', $data);
     }
 
-    public function updateAvailability($id)
+    public function create()
+    {
+        return view('doctor/create');
+    }
+
+    public function store()
+    {
+        $model = new DoctorModel();
+
+        $model->insert([
+            'DoctorCode'     => $this->request->getPost('DoctorCode'),
+            'Doctor_name'    => $this->request->getPost('Doctor_name'),
+            'Specialization' => $this->request->getPost('Specialization'),
+            'Doctor_email'   => $this->request->getPost('Doctor_email'),
+            'Password'       => password_hash($this->request->getPost('Password'), PASSWORD_DEFAULT),
+            'Phone'          => $this->request->getPost('Phone'),
+            'Availability'   => 'Available'
+        ]);
+
+        return redirect()->to('/doctor')->with('success','Doctor created');
+    }
+
+    public function edit($id)
+    {
+        $model = new DoctorModel();
+        $data['doctor'] = $model->find($id);
+
+        return view('doctor/edit', $data);
+    }
+
+    public function update($id)
     {
         $model = new DoctorModel();
 
         $model->update($id, [
-            'Availability' => $this->request->getPost('Availability')
+            'Doctor_name'    => $this->request->getPost('Doctor_name'),
+            'Specialization' => $this->request->getPost('Specialization'),
+            'Doctor_email'   => $this->request->getPost('Doctor_email'),
+            'Phone'          => $this->request->getPost('Phone'),
+            'Availability'   => $this->request->getPost('Availability')
         ]);
 
-        return redirect()->back()->with('success', 'Status availability updated');
+        return redirect()->to('/doctor')->with('success','Doctor updated');
+    }
+
+    public function delete($id)
+    {
+        $model = new DoctorModel();
+        $model->delete($id);
+
+        return redirect()->to('/doctor')->with('success','Doctor deleted');
     }
 }

@@ -15,6 +15,15 @@ class RoomModel extends Model
         'Room_Type',
         'Status'
     ];
-
+    public function getCurrentRoomByDoctor($doctorCode)
+    {
+        return $this->where('Status', 'Occupied')
+            ->first();
+    }
+    public function countAvailable()
+    {
+        return $this->where('Status', 'Available')
+            ->countAllResults();
+    }
     protected $useTimestamps = false;
 }
