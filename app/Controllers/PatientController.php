@@ -10,70 +10,83 @@ use App\Models\DoctorModel;
 
 class PatientController extends BaseController
 {
+
     public function index()
     {
-        // Simple data for testing the view
-        $data = [
-            'authName' => 'Rina Ayu Lestari',
-            'authCode' => 'PT001',
-            'notifCount' => 2,
-        ];
-        
-        return view('patient_view', $data);
-        $patientCode = session()->get('Patientcode');
+        $patientCode = session()->get('code');
 
-        $patientModel     = new PatientModel();
-        $appointmentModel = new AppointmentModel();
-        $recordModel      = new MedicalRecordModel();
-        $doctorModel      = new DoctorModel();
+        $patientModel       = new PatientModel();
+        $appointmentModel   = new AppointmentModel();
+        $medicalRecordModel = new MedicalRecordModel();
+        $doctorModel        = new DoctorModel();
 
-        $data['patient'] = $patientModel->find($patientCode);
+        $patient     = $patientModel->find($patientCode);
+        $records     = $medicalRecordModel->getByPatient($patientCode);
+        $appointments = $appointmentModel->getAppointmentsByPatient($patientCode);
+
+        $data['patient']      = $patient;
+        $data['appointments'] = $appointments;
+        $data['records']      = $records;
+        $data['doctors']      = $doctorModel->findAll();
+        $data['authName']     = $patient['Patient_name'] ?? session()->get('name');
 
         $data['stats'] = [
-            'upcoming' => $appointmentModel
-                ->where('Patientcode', $patientCode)
-                ->where('Status', 'scheduled')
-                ->countAllResults(),
-
-            'records' => $recordModel
-                ->where('Patientcode', $patientCode)
-                ->countAllResults(),
-
-            'prescriptions' => $recordModel
-                ->where('Patientcode', $patientCode)
-                ->countAllResults(),
+            'upcoming'      => $appointmentModel->countUpcomingByPatient($patientCode),
+            'records'       => count($records),
+            'prescriptions' => count(array_filter($records, fn($r) => !empty($r['Prescription']))),
         ];
 
-        $data['appointments'] = $appointmentModel
-            ->where('Patientcode', $patientCode)
-            ->orderBy('Appointment_date', 'DESC')
-            ->findAll();
-
-        $data['records'] = $recordModel
-            ->where('Patientcode', $patientCode)
-            ->orderBy('Visit_date', 'DESC')
-            ->findAll();
-
-        $data['doctors'] = $doctorModel
-            ->where('Availability', 'Available')
-            ->findAll();
-
-        return view('patient/index', $data);
+        return view('patient_view', $data);
     }
 
-    public function store()
+    public function bookAppointment()
     {
         $model = new AppointmentModel();
 
-        $model->save([
-            'Patientcode'      => session()->get('Patientcode'),
+        $model->insert([
+            'Appointmentcode'  => $model->nextCode(),
+            'Patientcode'      => session()->get('code'),
             'DoctorCode'       => $this->request->getPost('DoctorCode'),
-            'Status'           => 'scheduled',
-            'Symptoms'         => $this->request->getPost('Symptoms'),
             'Appointment_date' => $this->request->getPost('Appointment_date'),
             'Appointment_time' => $this->request->getPost('Appointment_time'),
+            'Symptoms'         => $this->request->getPost('Symptoms'),
+            'Status'           => 'scheduled',
         ]);
 
-        return redirect()->back()->with('success', 'Appointment requested');
+        return redirect()->to('/patient/dashboard')->with('success', 'Appointment booked successfully.');
+    }
+
+    public function appointments()
+    {
+        $patientCode = session()->get('code');
+        $model       = new AppointmentModel();
+
+        $data['appointments'] = $model->getAppointmentsByPatient($patientCode);
+        $data['authName']     = session()->get('name');
+
+        return view('patient/appointments', $data);
+    }
+
+    public function records()
+    {
+        $patientCode = session()->get('code');
+        $model       = new MedicalRecordModel();
+
+        $data['records']  = $model->getByPatient($patientCode);
+        $data['authName'] = session()->get('name');
+
+        return view('patient/records', $data);
+    }
+
+    public function profile()
+    {
+        $patientCode = session()->get('code');
+        $model       = new PatientModel();
+        $patient     = $model->find($patientCode);
+
+        $data['patient']  = $patient;
+        $data['authName'] = $patient['Patient_name'] ?? session()->get('name');
+
+        return view('patient/profile', $data);
     }
 }
