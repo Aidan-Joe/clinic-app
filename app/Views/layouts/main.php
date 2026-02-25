@@ -1,5 +1,5 @@
 
-<?php /** @var string $pageTitle */ ?>
+<?php  ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -6,7 +6,6 @@ $sidebarRole = 'admin';
 $activeNav   = 'dashboard';
 ?>
 
-<!-- PAGE HEADER -->
 <div class="page-header">
   <div>
     <h1 class="page-header__title">Dashboard Overview</h1>
@@ -18,7 +17,6 @@ $activeNav   = 'dashboard';
   </div>
 </div>
 
-<!-- STAT CARDS -->
 <div class="stats-grid stats-grid--4">
 
   <div class="stat-card">
@@ -105,7 +103,6 @@ $activeNav   = 'dashboard';
     </div>
   </div>
 
-  <!-- DOCTORS -->
   <div class="card">
     <div class="card__header">
       <span class="card__title">Doctors On Duty</span>
@@ -144,7 +141,6 @@ $activeNav   = 'dashboard';
 
 </div>
 
-<!-- ROOMS -->
 <div class="section-bar">
   <span class="section-bar__title">Room Status</span>
   <a href="<?= base_url('admin/rooms') ?>" class="card__action">View all →</a>

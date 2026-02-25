@@ -1,16 +1,4 @@
 <?php
-/**
- * Sidebar Component
- *
- * Expected variables (passed from view or controller):
- *   $sidebarRole   : 'admin' | 'doctor' | 'patient'  (default: 'admin')
- *   $authName      : Display name of logged-in user
- *   $authCode      : User code (e.g. AD001, DC001)
- *   $authSpec      : Specialization (doctor only)
- *   $authAvailable : bool — doctor availability (doctor only)
- *   $notifCount    : int — badge count on Appointments nav item
- *   $activeNav     : string — key of currently active nav item
- */
 
 $role       = $sidebarRole   ?? 'admin';
 $name       = $authName      ?? 'User';
@@ -20,14 +8,12 @@ $available  = $authAvailable ?? true;
 $notif      = $notifCount    ?? 0;
 $active     = $activeNav     ?? 'dashboard';
 
-// Role label & avatar initials
 $roleLabel  = match($role) { 'doctor' => 'Doctor Panel', 'admin' => 'Admin Panel', default => 'Patient Portal' };
 $initials   = implode('', array_map(fn($w) => strtoupper($w[0]), array_slice(explode(' ', $name), 0, 2)));
 ?>
 
 <aside class="sidebar">
 
-  <!-- Logo -->
   <div class="sidebar__logo">
     <div class="logo-lockup">
       <div class="logo-icon">🏥</div>
@@ -37,17 +23,19 @@ $initials   = implode('', array_map(fn($w) => strtoupper($w[0]), array_slice(exp
   </div>
 
   <?php if ($role === 'doctor'): ?>
-  <!-- Availability toggle (doctor only) -->
-  <div class="avail-pill">
-    <div>
-      <div class="avail-pill__label">Availability</div>
-      <div class="avail-pill__status"><?= $available ? 'Available' : 'Not Available' ?></div>
+
+  <form action="<?= base_url('doctor/update-status') ?>" method="post" id="avail-form">
+    <?= csrf_field() ?>
+    <div class="avail-pill" onclick="document.getElementById('avail-form').submit()" style="cursor:pointer;" title="Click to toggle availability">
+      <div>
+        <div class="avail-pill__label">Availability</div>
+        <div class="avail-pill__status"><?= $available ? 'Available' : 'Not Available' ?></div>
+      </div>
+      <div class="toggle <?= $available ? '' : 'toggle--off' ?>"></div>
     </div>
-    <div class="toggle <?= $available ? '' : 'toggle--off' ?>"></div>
-  </div>
+  </form>
   <?php endif; ?>
 
-  <!-- Navigation -->
   <nav class="sidebar__nav">
 
     <div class="nav__section">Overview</div>
@@ -110,7 +98,6 @@ $initials   = implode('', array_map(fn($w) => strtoupper($w[0]), array_slice(exp
 
   </nav>
 
-  <!-- Profile footer -->
   <div class="sidebar__footer">
     <div class="profile-row">
       <div class="avatar avatar--md avatar--green"><?= esc($initials) ?></div>

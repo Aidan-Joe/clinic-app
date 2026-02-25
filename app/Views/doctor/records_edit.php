@@ -1,0 +1,51 @@
+<?= $this->extend('layouts/main') ?>
+<?= $this->section('content') ?>
+
+<?php
+$sidebarRole = 'doctor';
+?>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">Edit Medical Record</h1>
+    <p class="page-header__sub"><a href="<?= base_url('doctor/records') ?>" class="card__action">← Back to Records</a></p>
+  </div>
+</div>
+
+<div class="card" style="max-width:620px;">
+  <div class="card__body">
+    <form action="<?= base_url('doctor/records/update/' . $record['RecordCode']) ?>" method="post">
+      <?= csrf_field() ?>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Record Code</label>
+          <input type="text" class="form-control" value="<?= esc($record['RecordCode']) ?>" disabled>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Patient Code</label>
+          <input type="text" class="form-control" value="<?= esc($record['Patientcode']) ?>" disabled>
+        </div>
+        <div class="form-group" style="grid-column:span 2;">
+          <label class="form-label">Diagnosis</label>
+          <input type="text" name="Diagnosis" class="form-control" value="<?= esc($record['Diagnosis']) ?>" required>
+        </div>
+        <div class="form-group" style="grid-column:span 2;">
+          <label class="form-label">Treatment</label>
+          <input type="text" name="Treatment" class="form-control" value="<?= esc($record['Treatment']) ?>" required>
+        </div>
+        <div class="form-group" style="grid-column:span 2;">
+          <label class="form-label">Prescription</label>
+          <textarea name="Prescription" class="form-control" style="height:80px;" required><?= esc($record['Prescription']) ?></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button type="submit" class="btn btn--primary">Update Record</button>
+        <a href="<?= base_url('doctor/records') ?>" class="btn btn--ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<?= $this->endSection() ?>

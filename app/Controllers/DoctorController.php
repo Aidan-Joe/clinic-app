@@ -6,68 +6,189 @@ use App\Controllers\BaseController;
 use App\Models\DoctorModel;
 use App\Models\AppointmentModel;
 use App\Models\MedicalRecordModel;
+use App\Models\PatientModel;
 use App\Models\RoomModel;
 
 class DoctorController extends BaseController
 {
+
     public function index()
     {
-        $model = new DoctorModel();
-        $data['doctors'] = $model->findAll();
+        $doctorCode = session()->get('code');
 
-        return view('doctor/index', $data);
+        $doctorModel        = new DoctorModel();
+        $appointmentModel   = new AppointmentModel();
+        $medicalRecordModel = new MedicalRecordModel();
+        $roomModel          = new RoomModel();
+
+        $doctor = $doctorModel->find($doctorCode);
+
+        $data['stats'] = [
+            'appointments_today' => $appointmentModel->countTodayByDoctor($doctorCode),
+            'completed'          => $appointmentModel->countCompletedByDoctor($doctorCode),
+            'total_patients'     => $appointmentModel->countTotalPatientsByDoctor($doctorCode),
+            'records_pending'    => $medicalRecordModel->countPendingByDoctor($doctorCode),
+        ];
+
+        $queue               = $appointmentModel->getTodayQueueByDoctor($doctorCode);
+        $data['queue']       = $queue;
+        $data['nextPatient'] = !empty($queue) ? $queue[0] : null;
+        $data['recentRecords'] = $medicalRecordModel->getRecentByDoctor($doctorCode);
+        $firstAppt = !empty($queue) ? $queue[0] : null;
+        $data['myRoom'] = ($firstAppt && !empty($firstAppt['Room_Code']))
+            ? $roomModel->find($firstAppt['Room_Code'])
+            : null;
+
+        $data = array_merge($data, $this->authData());
+
+        return view('doctor_view', $data);
     }
 
-    public function create()
+private function authData(): array
+{
+    $doctorCode = session()->get('code');
+    $doctor     = (new DoctorModel())->find($doctorCode);
+    $segment   = service('request')->getUri()->getSegment(2) ?: 'dashboard';
+    $activeNav = $segment;
+
+    return [
+        'authName'      => $doctor['Doctor_name']    ?? session()->get('name'),
+        'authCode'      => $doctorCode,
+        'authSpec'      => $doctor['Specialization']  ?? '',
+        'authAvailable' => ($doctor['Availability']   ?? '') === 'Available',
+        'activeNav'     => $activeNav,
+        'sidebarRole'   => 'doctor', 
+    ];
+}
+
+    public function updateAvailability()
     {
-        return view('doctor/create');
+        $model      = new DoctorModel();
+        $doctorCode = session()->get('code');
+        $doctor     = $model->find($doctorCode);
+
+        $newStatus = $doctor['Availability'] === 'Available' ? 'Not Available' : 'Available';
+        $model->update($doctorCode, ['Availability' => $newStatus]);
+
+        return redirect()->back();
     }
 
-    public function store()
+    public function appointments()
     {
-        $model = new DoctorModel();
+        $doctorCode = session()->get('code');
+        $model      = new AppointmentModel();
+
+        $data['appointments'] = $model->select('appointment.*, patient.Patient_name')
+            ->join('patient', 'patient.Patientcode = appointment.Patientcode', 'left')
+            ->where('appointment.DoctorCode', $doctorCode)
+            ->orderBy('Appointment_date', 'DESC')
+            ->findAll();
+
+        $data = array_merge($data, $this->authData());
+
+        return view('doctor/appointments', $data);
+    }
+
+    public function updateAppointmentStatus($id)
+    {
+        $model = new AppointmentModel();
+        $model->update($id, ['Status' => $this->request->getPost('Status')]);
+
+        return redirect()->to('/doctor/appointments')->with('success', 'Status updated.');
+    }
+
+    public function records()
+    {
+        $doctorCode = session()->get('code');
+        $model      = new MedicalRecordModel();
+
+        $data['records']      = $model->getRecentByDoctor($doctorCode);
+        $data = array_merge($data, $this->authData());
+
+        return view('doctor/records', $data);
+    }
+
+    public function createRecord()
+    {
+        $doctorCode = session()->get('code');
+        $apptModel  = new AppointmentModel();
+
+                $data['patients']     = $apptModel->select('appointment.Patientcode, patient.Patient_name')
+            ->join('patient', 'patient.Patientcode = appointment.Patientcode')
+            ->where('appointment.DoctorCode', $doctorCode)
+            ->groupBy('appointment.Patientcode')
+            ->findAll();
+
+        $data = array_merge($data, $this->authData());
+
+        return view('doctor/records_create', $data);
+    }
+
+    public function storeRecord()
+    {
+        $model = new MedicalRecordModel();
 
         $model->insert([
-            'DoctorCode'     => $this->request->getPost('DoctorCode'),
-            'Doctor_name'    => $this->request->getPost('Doctor_name'),
-            'Specialization' => $this->request->getPost('Specialization'),
-            'Doctor_email'   => $this->request->getPost('Doctor_email'),
-            'Password'       => password_hash($this->request->getPost('Password'), PASSWORD_DEFAULT),
-            'Phone'          => $this->request->getPost('Phone'),
-            'Availability'   => 'Available'
+            'RecordCode'   => $model->nextCode(),
+            'Visit_date'   => $this->request->getPost('Visit_date'),
+            'Diagnosis'    => $this->request->getPost('Diagnosis'),
+            'Treatment'    => $this->request->getPost('Treatment'),
+            'Prescription' => $this->request->getPost('Prescription'),
+            'DoctorCode'   => session()->get('code'),
+            'Patientcode'  => $this->request->getPost('Patientcode'),
         ]);
 
-        return redirect()->to('/doctor')->with('success','Doctor created');
+        return redirect()->to('/doctor/records')->with('success', 'Record created successfully.');
     }
 
-    public function edit($id)
+    public function editRecord($id)
     {
-        $model = new DoctorModel();
-        $data['doctor'] = $model->find($id);
+        $model = new MedicalRecordModel();
+        $data['record']      = $model->find($id);
+        $data = array_merge($data, $this->authData());
 
-        return view('doctor/edit', $data);
+        return view('doctor/records_edit', $data);
     }
 
-    public function update($id)
+    public function updateRecord($id)
     {
-        $model = new DoctorModel();
+        $model = new MedicalRecordModel();
 
         $model->update($id, [
-            'Doctor_name'    => $this->request->getPost('Doctor_name'),
-            'Specialization' => $this->request->getPost('Specialization'),
-            'Doctor_email'   => $this->request->getPost('Doctor_email'),
-            'Phone'          => $this->request->getPost('Phone'),
-            'Availability'   => $this->request->getPost('Availability')
+            'Diagnosis'    => $this->request->getPost('Diagnosis'),
+            'Treatment'    => $this->request->getPost('Treatment'),
+            'Prescription' => $this->request->getPost('Prescription'),
         ]);
 
-        return redirect()->to('/doctor')->with('success','Doctor updated');
+        return redirect()->to('/doctor/records')->with('success', 'Record updated successfully.');
     }
 
-    public function delete($id)
+    public function patients()
     {
-        $model = new DoctorModel();
-        $model->delete($id);
+        $doctorCode = session()->get('code');
+        $model      = new AppointmentModel();
 
-        return redirect()->to('/doctor')->with('success','Doctor deleted');
+        $rows = $model->select('patient.Patientcode, patient.Patient_name, patient.Phone, patient.Gender, COUNT(*) as visit_count')
+            ->join('patient', 'patient.Patientcode = appointment.Patientcode')
+            ->where('appointment.DoctorCode', $doctorCode)
+            ->groupBy('appointment.Patientcode')
+            ->findAll();
+
+        $data['patients']     = $rows;
+        $data = array_merge($data, $this->authData());
+
+        return view('doctor/patients', $data);
+    }
+
+    public function profile()
+    {
+        $doctorCode = session()->get('code');
+        $model      = new DoctorModel();
+        $doctor     = $model->find($doctorCode);
+
+        $data['doctor']       = $doctor;
+        $data = array_merge($data, $this->authData());
+
+        return view('doctor/profile', $data);
     }
 }

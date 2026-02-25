@@ -1,12 +1,4 @@
 <?php
-/**
- * Top Navigation Component (Patient layout)
- *
- * Expected variables:
- *   $authName   : Patient display name
- *   $activeNav  : active nav key
- *   $notifCount : int
- */
 
 $name   = $authName  ?? 'Patient';
 $active = $activeNav ?? 'dashboard';
@@ -39,6 +31,9 @@ $initials = implode('', array_map(fn($w) => strtoupper($w[0]), array_slice(explo
       <div class="avatar avatar--sm avatar--green"><?= esc($initials) ?></div>
       <span class="user-chip__name"><?= esc($name) ?></span>
     </div>
+    <a href="<?= base_url('auth/logout') ?>" class="btn btn--ghost" style="padding:7px 14px;font-size:13px;">
+      🚪 Logout
+    </a>
   </div>
 
 </nav>

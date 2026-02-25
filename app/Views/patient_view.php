@@ -12,7 +12,6 @@ $activeNav = 'dashboard';
     ));
 ?>
 
-<!-- HERO -->
 <div class="hero-banner">
   <div class="hero-banner__greeting">Welcome 👋</div>
   <div class="hero-banner__name"><?= esc((string) $patient['Patient_name']) ?></div>
@@ -23,7 +22,6 @@ $activeNav = 'dashboard';
 
 <?php endif; ?>
 
-<!-- STAT CARDS -->
 <div class="stats-grid stats-grid--3">
 
   <div class="stat-card">
@@ -48,10 +46,8 @@ $activeNav = 'dashboard';
 
 <div class="grid-cols-2">
 
-<!-- LEFT SIDE -->
 <div style="display:flex;flex-direction:column;gap:18px;">
 
-<!-- APPOINTMENTS -->
 <div class="card">
   <div class="card__header">
     <span class="card__title">My Appointments</span>
@@ -82,10 +78,10 @@ $activeNav = 'dashboard';
         <div style="display:flex;justify-content:space-between;">
           <div>
             <div class="timeline__doctor">
-              <?= esc((string) $appt['DoctorCode']) ?>
+              <?= esc((string) ($appt['Doctor_name'] ?? $appt['DoctorCode'])) ?>
             </div>
             <div class="timeline__spec">
-              <?= esc((string) $appt['Appointment_time']) ?>
+              <?= esc((string) ($appt['Specialization'] ?? '')) ?> · <?= esc((string) $appt['Appointment_time']) ?>
             </div>
           </div>
           <span class="badge <?= $badgeClass ?>">
@@ -111,8 +107,6 @@ $activeNav = 'dashboard';
   </div>
 </div>
 
-
-<!-- MEDICAL RECORDS -->
 <div class="card">
   <div class="card__header">
     <span class="card__title">My Medical Records</span>
@@ -137,11 +131,8 @@ $activeNav = 'dashboard';
 
 </div>
 
-
-<!-- RIGHT SIDE -->
 <div style="display:flex;flex-direction:column;gap:18px;">
 
-<!-- PROFILE -->
 <?php if (!empty($patient)): ?>
 <div class="card">
   <div class="profile-card__head">
@@ -177,15 +168,13 @@ $activeNav = 'dashboard';
 </div>
 <?php endif; ?>
 
-
-<!-- BOOK APPOINTMENT -->
 <div class="card">
   <div class="card__header">
     <span class="card__title">📅 Book New Appointment</span>
   </div>
 
   <div class="card__body">
-    <form action="<?= base_url('patient/store') ?>" method="post">
+    <form action="<?= base_url('patient/book') ?>" method="post">
       <?= csrf_field() ?>
 
       <div class="form-group">

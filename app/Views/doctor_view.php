@@ -3,10 +3,8 @@ $this->extend('layouts/main');
 $this->section('content');
 
 $sidebarRole = 'doctor';
-$activeNav   = 'dashboard';
 ?>
 
-<!-- PAGE HEADER -->
 <div class="page-header">
   <div>
     <h1 class="page-header__title">My Schedule</h1>
@@ -14,7 +12,6 @@ $activeNav   = 'dashboard';
   </div>
 </div>
 
-<!-- STAT CARDS -->
 <div class="stats-grid stats-grid--4">
 
   <div class="stat-card">
@@ -106,8 +103,6 @@ $activeNav   = 'dashboard';
       </div>
     </div>
 
-
-    <!-- RECENT RECORDS -->
     <div class="card">
       <div class="card__header">
         <span class="card__title">Recent Medical Records</span>
@@ -154,11 +149,8 @@ $activeNav   = 'dashboard';
 
   </div>
 
-
-  <!-- RIGHT SIDE -->
   <div style="display:flex;flex-direction:column;gap:18px;">
 
-    <!-- NEXT PATIENT -->
     <?php if (!empty($nextPatient)): 
         $next = $nextPatient;
         $initials = implode('', array_map(fn($w) => strtoupper($w[0]), 
@@ -184,8 +176,6 @@ $activeNav   = 'dashboard';
     </div>
     <?php endif; ?>
 
-
-    <!-- MY ROOM -->
     <?php if (!empty($myRoom)): 
         $isOcc = $myRoom['Status'] === 'Occupied';
     ?>

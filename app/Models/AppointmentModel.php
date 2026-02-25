@@ -32,6 +32,7 @@ class AppointmentModel extends Model
     public function countCompletedByDoctor($doctorCode)
     {
         return $this->where('DoctorCode', $doctorCode)
+            ->where('Appointment_date', date('Y-m-d'))
             ->where('Status', 'completed')
             ->countAllResults();
     }
@@ -46,7 +47,10 @@ class AppointmentModel extends Model
 
     public function getTodayQueueByDoctor($doctorCode)
     {
-        return $this->where('DoctorCode', $doctorCode)
+        return $this->select('appointment.*, patient.Patient_name')
+            ->join('patient', 'patient.Patientcode = appointment.Patientcode', 'left')
+            ->join('room', 'room.Room_Code = appointment.Room_Code', 'left')
+            ->where('appointment.DoctorCode', $doctorCode)
             ->where('Appointment_date', date('Y-m-d'))
             ->orderBy('Appointment_time', 'ASC')
             ->findAll();
@@ -60,7 +64,9 @@ class AppointmentModel extends Model
 
     public function getAppointmentsByPatient($patientCode)
     {
-        return $this->where('Patientcode', $patientCode)
+        return $this->select('appointment.*, doctor.Doctor_name, doctor.Specialization')
+            ->join('doctor', 'doctor.DoctorCode = appointment.DoctorCode', 'left')
+            ->where('appointment.Patientcode', $patientCode)
             ->orderBy('Appointment_date', 'DESC')
             ->findAll();
     }
@@ -80,6 +86,7 @@ class AppointmentModel extends Model
         return $this->select('
             appointment.*,
             patient.Patient_name as patient_name,
+            patient.Patientcode as patient_code,
             doctor.Doctor_name as doctor_name,
             doctor.Specialization as spec,
             room.Room_Code as room
@@ -88,7 +95,41 @@ class AppointmentModel extends Model
             ->join('doctor', 'doctor.DoctorCode = appointment.DoctorCode')
             ->join('room', 'room.Room_Code = appointment.Room_Code', 'left')
             ->where('Appointment_date', date('Y-m-d'))
+            ->orderBy('Appointment_time', 'ASC')
             ->findAll();
+    }
+
+    public function getAllFullAppointments()
+    {
+        return $this->select('
+            appointment.*,
+            patient.Patient_name as patient_name,
+            patient.Patientcode as patient_code,
+            doctor.Doctor_name as doctor_name,
+            doctor.Specialization as spec,
+            room.Room_Code as room
+        ')
+            ->join('patient', 'patient.Patientcode = appointment.Patientcode')
+            ->join('doctor', 'doctor.DoctorCode = appointment.DoctorCode')
+            ->join('room', 'room.Room_Code = appointment.Room_Code', 'left')
+            ->orderBy('Appointment_date', 'DESC')
+            ->orderBy('Appointment_time', 'ASC')
+            ->findAll();
+    }
+
+    public function nextCode(): string
+    {
+        $last = $this->select('Appointmentcode')
+            ->like('Appointmentcode', 'AP', 'after')
+            ->orderBy('Appointmentcode', 'DESC')
+            ->first();
+
+        if ($last) {
+            $num = (int) substr($last['Appointmentcode'], 2);
+            return 'AP' . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
+        }
+
+        return 'AP001';
     }
     protected $useTimestamps = false;
 }

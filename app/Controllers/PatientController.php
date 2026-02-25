@@ -10,63 +10,83 @@ use App\Models\DoctorModel;
 
 class PatientController extends BaseController
 {
+
     public function index()
     {
-        $model = new PatientModel();
-        $data['patients'] = $model->findAll();
+        $patientCode = session()->get('code');
 
-        return view('patient/index', $data);
+        $patientModel       = new PatientModel();
+        $appointmentModel   = new AppointmentModel();
+        $medicalRecordModel = new MedicalRecordModel();
+        $doctorModel        = new DoctorModel();
+
+        $patient     = $patientModel->find($patientCode);
+        $records     = $medicalRecordModel->getByPatient($patientCode);
+        $appointments = $appointmentModel->getAppointmentsByPatient($patientCode);
+
+        $data['patient']      = $patient;
+        $data['appointments'] = $appointments;
+        $data['records']      = $records;
+        $data['doctors']      = $doctorModel->findAll();
+        $data['authName']     = $patient['Patient_name'] ?? session()->get('name');
+
+        $data['stats'] = [
+            'upcoming'      => $appointmentModel->countUpcomingByPatient($patientCode),
+            'records'       => count($records),
+            'prescriptions' => count(array_filter($records, fn($r) => !empty($r['Prescription']))),
+        ];
+
+        return view('patient_view', $data);
     }
 
-    public function create()
+    public function bookAppointment()
     {
-        return view('patient/create');
-    }
-
-    public function store()
-    {
-        $model = new PatientModel();
+        $model = new AppointmentModel();
 
         $model->insert([
-            'Patientcode' => $this->request->getPost('Patientcode'),
-            'Patient_name'=> $this->request->getPost('Patient_name'),
-            'Gender'      => $this->request->getPost('Gender'),
-            'Phone'       => $this->request->getPost('Phone'),
-            'Patient_email'=> $this->request->getPost('Patient_email'),
-            'Address'     => $this->request->getPost('Address'),
+            'Appointmentcode'  => $model->nextCode(),
+            'Patientcode'      => session()->get('code'),
+            'DoctorCode'       => $this->request->getPost('DoctorCode'),
+            'Appointment_date' => $this->request->getPost('Appointment_date'),
+            'Appointment_time' => $this->request->getPost('Appointment_time'),
+            'Symptoms'         => $this->request->getPost('Symptoms'),
+            'Status'           => 'scheduled',
         ]);
 
-        return redirect()->to('/patient')->with('success','Patient created');
+        return redirect()->to('/patient/dashboard')->with('success', 'Appointment booked successfully.');
     }
 
-    public function edit($id)
+    public function appointments()
     {
-        $model = new PatientModel();
-        $data['patient'] = $model->find($id);
+        $patientCode = session()->get('code');
+        $model       = new AppointmentModel();
 
-        return view('patient/edit', $data);
+        $data['appointments'] = $model->getAppointmentsByPatient($patientCode);
+        $data['authName']     = session()->get('name');
+
+        return view('patient/appointments', $data);
     }
 
-    public function update($id)
+    public function records()
     {
-        $model = new PatientModel();
+        $patientCode = session()->get('code');
+        $model       = new MedicalRecordModel();
 
-        $model->update($id, [
-            'Patient_name'=> $this->request->getPost('Patient_name'),
-            'Gender'      => $this->request->getPost('Gender'),
-            'Phone'       => $this->request->getPost('Phone'),
-            'Patient_email'=> $this->request->getPost('Patient_email'),
-            'Address'     => $this->request->getPost('Address'),
-        ]);
+        $data['records']  = $model->getByPatient($patientCode);
+        $data['authName'] = session()->get('name');
 
-        return redirect()->to('/patient')->with('success','Patient updated');
+        return view('patient/records', $data);
     }
 
-    public function delete($id)
+    public function profile()
     {
-        $model = new PatientModel();
-        $model->delete($id);
+        $patientCode = session()->get('code');
+        $model       = new PatientModel();
+        $patient     = $model->find($patientCode);
 
-        return redirect()->to('/patient')->with('success','Patient deleted');
+        $data['patient']  = $patient;
+        $data['authName'] = $patient['Patient_name'] ?? session()->get('name');
+
+        return view('patient/profile', $data);
     }
 }
