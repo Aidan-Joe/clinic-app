@@ -9,7 +9,7 @@ $routes->get('auth/logout',  'AuthController::logout');
 
 $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
 
-    $routes->get('dashboard', 'AdminController::index');
+   $routes->get('dashboard', 'AdminController::index');
 
         $routes->get('doctors',                        'AdminController::doctors');
     $routes->get('doctors/create',                 'AdminController::createDoctor');
@@ -49,29 +49,38 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
 
 $routes->group('doctor', ['filter' => 'auth:doctor'], function ($routes) {
 
-    $routes->get('dashboard',                          'DoctorController::index');
-    $routes->post('update-status',                     'DoctorController::updateAvailability');
+   $routes->get('dashboard',                          'DoctorController::index');
+   $routes->post('update-status',                     'DoctorController::updateAvailability');
 
-    $routes->get('appointments',                       'DoctorController::appointments');
-    $routes->post('appointments/update/(:segment)',     'DoctorController::updateAppointmentStatus/$1');
+   $routes->get('appointments',                       'DoctorController::appointments');
+   $routes->post('appointments/update/(:segment)',     'DoctorController::updateAppointmentStatus/$1');
 
-    $routes->get('records',                            'DoctorController::records');
-    $routes->get('records/create',                     'DoctorController::createRecord');
-    $routes->post('records/store',                     'DoctorController::storeRecord');
-    $routes->get('records/edit/(:segment)',             'DoctorController::editRecord/$1');
-    $routes->post('records/update/(:segment)',          'DoctorController::updateRecord/$1');
+   $routes->get('records',                            'DoctorController::records');
+   $routes->get('records/create',                     'DoctorController::createRecord');
+   $routes->post('records/store',                     'DoctorController::storeRecord');
+   $routes->get('records/edit/(:segment)',             'DoctorController::editRecord/$1');
+   $routes->post('records/update/(:segment)',          'DoctorController::updateRecord/$1');
 
-    $routes->get('patients',                           'DoctorController::patients');
-    $routes->get('profile',                            'DoctorController::profile');
+   $routes->get('patients',                           'DoctorController::patients');
+   $routes->get('profile',                            'DoctorController::profile');
     $routes->post('profile/upload-photo',              'DoctorController::uploadPhoto');
 });
 
 $routes->group('patient', ['filter' => 'auth:patient'], function ($routes) {
 
-    $routes->get('dashboard',    'PatientController::index');
-    $routes->post('book',        'PatientController::bookAppointment');
-    $routes->get('appointments', 'PatientController::appointments');
-    $routes->get('records',      'PatientController::records');
-    $routes->get('profile',       'PatientController::profile');
+   $routes->get('dashboard',    'PatientController::index');
+   $routes->post('book',        'PatientController::bookAppointment');
+   $routes->get('appointments', 'PatientController::appointments');
+   $routes->get('records',      'PatientController::records');
+   $routes->get('profile',       'PatientController::profile');
     $routes->post('profile/upload-photo', 'PatientController::uploadPhoto');
+});
+
+   //API
+   $routes->group('api', function ($routes) {
+    $routes->resource('patients', ['controller' => 'Api\Patient']);
+    $routes->resource('doctors', ['controller' => 'Api\Doctor']);
+    $routes->resource('appointments', ['controller' => 'Api\Appointment']);
+    $routes->resource('medicalrecords', ['controller' => 'Api\MedicalRecord']);
+    $routes->resource('rooms', ['controller' => 'Api\Room']);
 });

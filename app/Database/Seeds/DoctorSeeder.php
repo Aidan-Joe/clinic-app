@@ -8,7 +8,6 @@ class DoctorSeeder extends Seeder
 {
     public function run()
     {
-        $this->db->table('doctor')->truncate();
 
         // Default password for all doctors: doctor123
         $password = password_hash('doctor123', PASSWORD_DEFAULT);
