@@ -192,7 +192,7 @@ class DoctorController extends BaseController
         $doctor     = (new DoctorModel())->find($doctorCode);
         $model      = new AppointmentModel();
 
-        $data['patients'] = $model->select('patient.Patientcode, patient.Patient_name, patient.Phone, patient.Gender, COUNT(*) as visit_count')
+        $data['patients'] = $model->select('patient.Patientcode, patient.Patient_name, patient.Phone, patient.Gender, patient.Photo, COUNT(*) as visit_count')
             ->join('patient', 'patient.Patientcode = appointment.Patientcode')
             ->where('appointment.DoctorCode', $doctorCode)
             ->groupBy('appointment.Patientcode')

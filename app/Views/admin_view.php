@@ -69,34 +69,34 @@ $activeNav   = 'dashboard';
         </thead>
         <tbody>
 
-        <?php if (!empty($appointments)): ?>
+          <?php if (!empty($appointments)): ?>
             <?php foreach ($appointments as $appt): ?>
-            <tr>
-              <td>
-                <div class="td--name"><?= esc($appt['patient_name']) ?></div>
-                <div class="td--muted"><?= esc($appt['patient_code']) ?></div>
-              </td>
-              <td>
-                <div><?= esc($appt['doctor_name']) ?></div>
-                <div class="td--muted"><?= esc($appt['spec']) ?></div>
-              </td>
-              <td><?= esc($appt['room'] ?? '-') ?></td>
-              <td><?= esc($appt['Appointment_time']) ?></td>
-              <td class="td--muted" style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                <?= esc($appt['Symptoms']) ?>
-              </td>
-              <td>
-                <span class="badge badge--<?= esc($appt['Status']) ?>">
-                  <?= ucfirst((string) $appt['Status']) ?>
-                </span>
-              </td>
-            </tr>
+              <tr>
+                <td>
+                  <div class="td--name"><?= esc($appt['patient_name']) ?></div>
+                  <div class="td--muted"><?= esc($appt['patient_code']) ?></div>
+                </td>
+                <td>
+                  <div><?= esc($appt['doctor_name']) ?></div>
+                  <div class="td--muted"><?= esc($appt['spec']) ?></div>
+                </td>
+                <td><?= esc($appt['room'] ?? '-') ?></td>
+                <td><?= esc($appt['time']) ?></td>
+                <td class="td--muted" style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  <?= esc($appt['symptoms']) ?>
+                </td>
+                <td>
+                  <span class="badge badge--<?= esc($appt['status']) ?>">
+                    <?= ucfirst((string) $appt['status']) ?>
+                  </span>
+                </td>
+              </tr>
             <?php endforeach; ?>
-        <?php else: ?>
+          <?php else: ?>
             <tr>
               <td colspan="6" style="text-align:center;">No appointments today</td>
             </tr>
-        <?php endif; ?>
+          <?php endif; ?>
 
         </tbody>
       </table>
@@ -111,27 +111,43 @@ $activeNav   = 'dashboard';
 
     <div class="doctor-list">
       <?php if (!empty($doctors)): ?>
-        <?php 
-        $avatarClasses = ['avatar--green','avatar--teal','avatar--olive','avatar--sage','avatar--moss','avatar--fern'];
-        foreach ($doctors as $i => $doc): 
-            $initials = implode('', array_map(fn($w) => strtoupper($w[0]), 
-                array_slice(explode(' ', preg_replace('/^Dr\.\s*/', '', $doc['Doctor_name'])), 0, 2)
-            ));
-            $avClass = $avatarClasses[$i % count($avatarClasses)];
-            $isAvail = $doc['Availability'] === 'Available';
+        <?php
+        $avatarClasses = ['avatar--green', 'avatar--teal', 'avatar--olive', 'avatar--sage', 'avatar--moss', 'avatar--fern'];
+        foreach ($doctors as $i => $doc):
+          $initials = implode('', array_map(
+            fn($w) => strtoupper($w[0]),
+            array_slice(explode(' ', preg_replace('/^Dr\.\s*/', '', $doc['Doctor_name'])), 0, 2)
+          ));
+          $avClass = $avatarClasses[$i % count($avatarClasses)];
+          $isAvail = $doc['Availability'] === 'Available';
         ?>
-        <div class="doctor-list__item">
-          <div class="avatar avatar--md <?= $avClass ?>"><?= $initials ?></div>
-          <div class="doctor-list__info">
-            <div class="doctor-list__name"><?= esc($doc['Doctor_name']) ?></div>
-            <div class="doctor-list__spec">
-              <?= esc($doc['Specialization']) ?> · <?= esc($doc['DoctorCode']) ?>
+          <div class="doctor-list__item">
+            <?php
+            $docPhotoUrl = (!empty($doc['Photo']) &&
+              file_exists(FCPATH . 'uploads/avatars/' . $doc['Photo']))
+              ? base_url('uploads/avatars/' . $doc['Photo'])
+              : '';
+            ?>
+
+            <?php if ($docPhotoUrl): ?>
+              <img src="<?= esc($docPhotoUrl) ?>" alt=""
+                style="width:40px;height:40px;border-radius:50%;
+              object-fit:cover;flex-shrink:0;">
+            <?php else: ?>
+              <div class="avatar avatar--md <?= $avClass ?>">
+                <?= $initials ?>
+              </div>
+            <?php endif; ?>
+            <div class="doctor-list__info">
+              <div class="doctor-list__name"><?= esc($doc['Doctor_name']) ?></div>
+              <div class="doctor-list__spec">
+                <?= esc($doc['Specialization']) ?> · <?= esc($doc['DoctorCode']) ?>
+              </div>
             </div>
+            <span class="badge <?= $isAvail ? 'badge--available' : 'badge--occupied' ?>">
+              <?= esc($doc['Availability']) ?>
+            </span>
           </div>
-          <span class="badge <?= $isAvail ? 'badge--available' : 'badge--occupied' ?>">
-            <?= esc($doc['Availability']) ?>
-          </span>
-        </div>
         <?php endforeach; ?>
       <?php else: ?>
         <p style="padding:16px;">No doctors found</p>
@@ -148,26 +164,26 @@ $activeNav   = 'dashboard';
 
 <div class="grid-cols-3">
 
-<?php if (!empty($rooms)): ?>
-  <?php foreach ($rooms as $room): 
+  <?php if (!empty($rooms)): ?>
+    <?php foreach ($rooms as $room):
       $isOcc = $room['Status'] === 'Occupied';
-  ?>
-  <div class="room-card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <div>
-        <div class="room-card__code"><?= esc($room['Room_Code']) ?></div>
-        <div class="room-card__name"><?= esc($room['Room_Name']) ?></div>
-        <div class="room-card__type"><?= esc($room['Room_Type']) ?></div>
+    ?>
+      <div class="room-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div class="room-card__code"><?= esc($room['Room_Code']) ?></div>
+            <div class="room-card__name"><?= esc($room['Room_Name']) ?></div>
+            <div class="room-card__type"><?= esc($room['Room_Type']) ?></div>
+          </div>
+          <span class="badge <?= $isOcc ? 'badge--occupied' : 'badge--available' ?>">
+            <?= esc($room['Status']) ?>
+          </span>
+        </div>
       </div>
-      <span class="badge <?= $isOcc ? 'badge--occupied' : 'badge--available' ?>">
-        <?= esc($room['Status']) ?>
-      </span>
-    </div>
-  </div>
-  <?php endforeach; ?>
-<?php else: ?>
-  <p style="padding:16px;">No rooms available</p>
-<?php endif; ?>
+    <?php endforeach; ?>
+  <?php else: ?>
+    <p style="padding:16px;">No rooms available</p>
+  <?php endif; ?>
 
 </div>
 
