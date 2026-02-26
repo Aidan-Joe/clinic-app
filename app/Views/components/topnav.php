@@ -28,7 +28,13 @@ $initials = implode('', array_map(fn($w) => strtoupper($w[0]), array_slice(explo
       <?php endif; ?>
     </div>
     <div class="user-chip">
-      <div class="avatar avatar--sm avatar--green"><?= esc($initials) ?></div>
+      <?php $topnavPhotoUrl = (fn($f) => $f && file_exists(FCPATH . 'uploads/avatars/' . $f) ? base_url('uploads/avatars/' . $f) : '')($authPhoto ?? null); ?>
+      <?php if ($topnavPhotoUrl): ?>
+        <img src="<?= esc($topnavPhotoUrl) ?>" alt=""
+             style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+      <?php else: ?>
+        <div class="avatar avatar--sm avatar--green"><?= esc($initials) ?></div>
+      <?php endif; ?>
       <span class="user-chip__name"><?= esc($name) ?></span>
     </div>
     <a href="<?= base_url('auth/logout') ?>" class="btn btn--ghost" style="padding:7px 14px;font-size:13px;">

@@ -96,7 +96,12 @@ class AdminController extends BaseController
 
     public function deleteDoctor($id)
     {
-        $model = new DoctorModel();
+        $model  = new DoctorModel();
+        $doctor = $model->find($id);
+        $photo = $doctor['Photo'] ?? null;
+        if ($photo && file_exists(FCPATH . 'uploads/avatars/' . $photo)) {
+            unlink(FCPATH . 'uploads/avatars/' . $photo);
+        }
         $model->delete($id);
 
         return redirect()->to('/admin/doctors')->with('success', 'Doctor deleted.');
@@ -165,7 +170,12 @@ class AdminController extends BaseController
 
     public function deletePatient($id)
     {
-        $model = new PatientModel();
+        $model   = new PatientModel();
+        $patient = $model->find($id);
+        $photo = $patient['Photo'] ?? null;
+        if ($photo && file_exists(FCPATH . 'uploads/avatars/' . $photo)) {
+            unlink(FCPATH . 'uploads/avatars/' . $photo);
+        }
         $model->delete($id);
 
         return redirect()->to('/admin/patients')->with('success', 'Patient deleted.');

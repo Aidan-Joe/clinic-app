@@ -47,7 +47,16 @@ class AppointmentModel extends Model
 
     public function getTodayQueueByDoctor($doctorCode)
     {
-        return $this->select('appointment.*, patient.Patient_name')
+        return $this->select('
+            appointment.Appointmentcode,
+            appointment.Patientcode,
+            appointment.Room_Code,
+            appointment.Appointment_time,
+            appointment.Symptoms,
+            appointment.Status,
+            patient.Patient_name,
+            patient.Photo
+        ')
             ->join('patient', 'patient.Patientcode = appointment.Patientcode', 'left')
             ->join('room', 'room.Room_Code = appointment.Room_Code', 'left')
             ->where('appointment.DoctorCode', $doctorCode)
@@ -64,7 +73,16 @@ class AppointmentModel extends Model
 
     public function getAppointmentsByPatient($patientCode)
     {
-        return $this->select('appointment.*, doctor.Doctor_name, doctor.Specialization')
+        return $this->select('
+            appointment.Appointmentcode,
+            appointment.DoctorCode,
+            appointment.Appointment_date,
+            appointment.Appointment_time,
+            appointment.Symptoms,
+            appointment.Status,
+            doctor.Doctor_name,
+            doctor.Specialization
+        ')
             ->join('doctor', 'doctor.DoctorCode = appointment.DoctorCode', 'left')
             ->where('appointment.Patientcode', $patientCode)
             ->orderBy('Appointment_date', 'DESC')
@@ -84,12 +102,17 @@ class AppointmentModel extends Model
     public function getTodayFullAppointments()
     {
         return $this->select('
-            appointment.*,
-            patient.Patient_name as patient_name,
-            patient.Patientcode as patient_code,
-            doctor.Doctor_name as doctor_name,
-            doctor.Specialization as spec,
-            room.Room_Code as room
+            appointment.Appointmentcode,
+            appointment.Appointment_date,
+            appointment.Appointment_time  as time,
+            appointment.Symptoms          as symptoms,
+            appointment.Status            as status,
+            appointment.Room_Code,
+            patient.Patient_name          as patient_name,
+            patient.Patientcode           as patient_code,
+            doctor.Doctor_name            as doctor_name,
+            doctor.Specialization         as spec,
+            room.Room_Code                as room
         ')
             ->join('patient', 'patient.Patientcode = appointment.Patientcode')
             ->join('doctor', 'doctor.DoctorCode = appointment.DoctorCode')
@@ -102,12 +125,19 @@ class AppointmentModel extends Model
     public function getAllFullAppointments()
     {
         return $this->select('
-            appointment.*,
-            patient.Patient_name as patient_name,
-            patient.Patientcode as patient_code,
-            doctor.Doctor_name as doctor_name,
-            doctor.Specialization as spec,
-            room.Room_Code as room
+            appointment.Appointmentcode,
+            appointment.Patientcode,
+            appointment.DoctorCode,
+            appointment.Room_Code,
+            appointment.Appointment_date,
+            appointment.Appointment_time,
+            appointment.Symptoms,
+            appointment.Status,
+            patient.Patient_name          as patient_name,
+            patient.Patientcode           as patient_code,
+            doctor.Doctor_name            as doctor_name,
+            doctor.Specialization         as spec,
+            room.Room_Code                as room
         ')
             ->join('patient', 'patient.Patientcode = appointment.Patientcode')
             ->join('doctor', 'doctor.DoctorCode = appointment.DoctorCode')
@@ -119,13 +149,12 @@ class AppointmentModel extends Model
 
     public function nextCode(): string
     {
-        $last = $this->select('Appointmentcode')
-            ->like('Appointmentcode', 'AP', 'after')
-            ->orderBy('Appointmentcode', 'DESC')
-            ->first();
+        $row = $this->db->query(
+            "SELECT Appointmentcode FROM appointment WHERE Appointmentcode LIKE 'AP%' ORDER BY CAST(SUBSTR(Appointmentcode, 3) AS UNSIGNED) DESC LIMIT 1"
+        )->getRowArray();
 
-        if ($last) {
-            $num = (int) substr($last['Appointmentcode'], 2);
+        if ($row) {
+            $num = (int) substr($row['Appointmentcode'], 2);
             return 'AP' . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
         }
 

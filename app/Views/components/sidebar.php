@@ -100,7 +100,16 @@ $initials   = implode('', array_map(fn($w) => strtoupper($w[0]), array_slice(exp
 
   <div class="sidebar__footer">
     <div class="profile-row">
-      <div class="avatar avatar--md avatar--green"><?= esc($initials) ?></div>
+      <?php
+        $sidebarPhoto = $authPhoto ?? null;
+        $sidebarPhotoUrl = (fn($f) => $f && file_exists(FCPATH . 'uploads/avatars/' . $f) ? base_url('uploads/avatars/' . $f) : '')($sidebarPhoto);
+      ?>
+      <?php if ($sidebarPhotoUrl): ?>
+        <img src="<?= esc($sidebarPhotoUrl) ?>" alt=""
+             style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+      <?php else: ?>
+        <div class="avatar avatar--md avatar--green"><?= esc($initials) ?></div>
+      <?php endif; ?>
       <div class="profile-row__info">
         <div class="profile-row__name"><?= esc($name) ?></div>
         <div class="profile-row__meta">

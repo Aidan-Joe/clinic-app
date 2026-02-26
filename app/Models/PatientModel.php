@@ -17,7 +17,8 @@ class PatientModel extends Model
         'Phone',
         'Birthdate',
         'Gender',
-        'Address'
+        'Address',
+        'Photo',
     ];
 
     protected $useTimestamps = false;
