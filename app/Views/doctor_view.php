@@ -156,6 +156,7 @@ $sidebarRole = 'doctor';
         $initials = implode('', array_map(fn($w) => strtoupper($w[0]), 
             array_slice(explode(' ', $next['Patient_name']), 0, 2)
         ));
+        $nextPhotoUrl = (fn($f) => $f && file_exists(FCPATH . 'uploads/avatars/' . $f) ? base_url('uploads/avatars/' . $f) : '')($next['Photo'] ?? null);
     ?>
     <div class="card">
       <div class="card__header">
@@ -164,7 +165,12 @@ $sidebarRole = 'doctor';
 
       <div class="card__body">
         <div style="display:flex;align-items:center;gap:12px;">
-          <div class="avatar avatar--lg avatar--teal"><?= $initials ?></div>
+          <?php if ($nextPhotoUrl): ?>
+            <img src="<?= esc($nextPhotoUrl) ?>" alt=""
+                 style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+          <?php else: ?>
+            <div class="avatar avatar--lg avatar--teal"><?= $initials ?></div>
+          <?php endif; ?>
           <div>
             <div style="font-weight:600;"><?= esc((string) $next['Patient_name']) ?></div>
             <div class="td--muted">

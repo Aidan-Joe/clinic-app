@@ -20,7 +20,16 @@ class MedicalRecordModel extends Model
     ];
     public function getRecentByDoctor($doctorCode, $limit = 5)
     {
-        return $this->select('medicalrecord.*, patient.Patient_name, patient.Patientcode as Patientcode')
+        return $this->select('
+            medicalrecord.RecordCode,
+            medicalrecord.Visit_date,
+            medicalrecord.Diagnosis,
+            medicalrecord.Treatment,
+            medicalrecord.Prescription,
+            medicalrecord.DoctorCode,
+            medicalrecord.Patientcode,
+            patient.Patient_name
+        ')
             ->join('patient', 'patient.Patientcode = medicalrecord.Patientcode', 'left')
             ->where('medicalrecord.DoctorCode', $doctorCode)
             ->orderBy('Visit_date', 'DESC')
@@ -49,25 +58,30 @@ class MedicalRecordModel extends Model
             ->findAll();
     }
     public function getWithRelation()
-{
-    return $this->select('
-        medicalrecord.*,
-        doctor.Doctor_name,
-        patient.Patient_name
-    ')
-    ->join('doctor', 'doctor.DoctorCode = medicalrecord.DoctorCode', 'left')
-    ->join('patient', 'patient.Patientcode = medicalrecord.Patientcode', 'left')
-    ->findAll();
-}
+    {
+        return $this->select('
+            medicalrecord.RecordCode,
+            medicalrecord.Visit_date,
+            medicalrecord.Diagnosis,
+            medicalrecord.Treatment,
+            medicalrecord.Prescription,
+            medicalrecord.DoctorCode,
+            medicalrecord.Patientcode,
+            doctor.Doctor_name,
+            patient.Patient_name
+        ')
+            ->join('doctor', 'doctor.DoctorCode = medicalrecord.DoctorCode', 'left')
+            ->join('patient', 'patient.Patientcode = medicalrecord.Patientcode', 'left')
+            ->findAll();
+    }
     public function nextCode(): string
     {
-        $last = $this->select('RecordCode')
-            ->like('RecordCode', 'RC', 'after')
-            ->orderBy('RecordCode', 'DESC')
-            ->first();
+        $row = $this->db->query(
+            "SELECT RecordCode FROM medicalrecord WHERE RecordCode LIKE 'RC%' ORDER BY CAST(SUBSTR(RecordCode, 3) AS UNSIGNED) DESC LIMIT 1"
+        )->getRowArray();
 
-        if ($last) {
-            $num = (int) substr($last['RecordCode'], 2);
+        if ($row) {
+            $num = (int) substr($row['RecordCode'], 2);
             return 'RC' . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
         }
 

@@ -16,7 +16,8 @@ class DoctorModel extends Model
         'Doctor_email',
         'Password',
         'Phone',
-        'Availability'
+        'Availability',
+        'Photo',
     ];
 
     protected $useTimestamps = false;

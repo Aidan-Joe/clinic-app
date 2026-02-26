@@ -2,59 +2,44 @@
 
 use CodeIgniter\Router\RouteCollection;
 
-/**
- * @var RouteCollection $routes
- */
-
-/* ==============================
-   AUTH
-============================== */
 $routes->get('/',            'AuthController::index');
 $routes->get('login',        'AuthController::index');
 $routes->post('auth/login',  'AuthController::login');
 $routes->get('auth/logout',  'AuthController::logout');
 
-/* ==============================
-   ADMIN
-============================== */
 $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
 
     $routes->get('dashboard', 'AdminController::index');
 
-    // Doctors
-    $routes->get('doctors',                        'AdminController::doctors');
+        $routes->get('doctors',                        'AdminController::doctors');
     $routes->get('doctors/create',                 'AdminController::createDoctor');
     $routes->post('doctors/store',                 'AdminController::storeDoctor');
     $routes->get('doctors/edit/(:segment)',         'AdminController::editDoctor/$1');
     $routes->post('doctors/update/(:segment)',      'AdminController::updateDoctor/$1');
     $routes->get('doctors/delete/(:segment)',       'AdminController::deleteDoctor/$1');
 
-    // Patients
-    $routes->get('patients',                       'AdminController::patients');
+        $routes->get('patients',                       'AdminController::patients');
     $routes->get('patients/create',                'AdminController::createPatient');
     $routes->post('patients/store',                'AdminController::storePatient');
     $routes->get('patients/edit/(:segment)',        'AdminController::editPatient/$1');
     $routes->post('patients/update/(:segment)',     'AdminController::updatePatient/$1');
     $routes->get('patients/delete/(:segment)',      'AdminController::deletePatient/$1');
 
-    // Appointments
-    $routes->get('appointments',                   'AdminController::appointments');
+        $routes->get('appointments',                   'AdminController::appointments');
     $routes->get('appointments/create',            'AdminController::createAppointment');
     $routes->post('appointments/store',            'AdminController::storeAppointment');
     $routes->get('appointments/edit/(:segment)',    'AdminController::editAppointment/$1');
     $routes->post('appointments/update/(:segment)','AdminController::updateAppointment/$1');
     $routes->get('appointments/delete/(:segment)', 'AdminController::deleteAppointment/$1');
 
-    // Rooms
-    $routes->get('rooms',                          'AdminController::rooms');
+        $routes->get('rooms',                          'AdminController::rooms');
     $routes->get('rooms/create',                   'AdminController::createRoom');
     $routes->post('rooms/store',                   'AdminController::storeRoom');
     $routes->get('rooms/edit/(:segment)',           'AdminController::editRoom/$1');
     $routes->post('rooms/update/(:segment)',        'AdminController::updateRoom/$1');
     $routes->get('rooms/delete/(:segment)',         'AdminController::deleteRoom/$1');
 
-    // Medical Records
-    $routes->get('records',                        'AdminController::records');
+        $routes->get('records',                        'AdminController::records');
     $routes->get('records/create',                 'AdminController::createRecord');
     $routes->post('records/store',                 'AdminController::storeRecord');
     $routes->get('records/edit/(:segment)',         'AdminController::editRecord/$1');
@@ -62,9 +47,6 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     $routes->get('records/delete/(:segment)',       'AdminController::deleteRecord/$1');
 });
 
-/* ==============================
-   DOCTOR
-============================== */
 $routes->group('doctor', ['filter' => 'auth:doctor'], function ($routes) {
 
     $routes->get('dashboard',                          'DoctorController::index');
@@ -81,16 +63,15 @@ $routes->group('doctor', ['filter' => 'auth:doctor'], function ($routes) {
 
     $routes->get('patients',                           'DoctorController::patients');
     $routes->get('profile',                            'DoctorController::profile');
+    $routes->post('profile/upload-photo',              'DoctorController::uploadPhoto');
 });
 
-/* ==============================
-   PATIENT
-============================== */
 $routes->group('patient', ['filter' => 'auth:patient'], function ($routes) {
 
     $routes->get('dashboard',    'PatientController::index');
     $routes->post('book',        'PatientController::bookAppointment');
     $routes->get('appointments', 'PatientController::appointments');
     $routes->get('records',      'PatientController::records');
-    $routes->get('profile',      'PatientController::profile');
+    $routes->get('profile',       'PatientController::profile');
+    $routes->post('profile/upload-photo', 'PatientController::uploadPhoto');
 });

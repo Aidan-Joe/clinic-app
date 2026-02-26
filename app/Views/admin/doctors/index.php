@@ -42,9 +42,15 @@ $activeNav   = 'doctors';
                 $initials = implode('', array_map(fn($w) => strtoupper($w[0]),
                   array_slice(explode(' ', preg_replace('/^Dr\.\s*/', '', $doc['Doctor_name'])), 0, 2)
                 ));
+                $docPhotoUrl = (fn($f) => $f && file_exists(FCPATH . 'uploads/avatars/' . $f) ? base_url('uploads/avatars/' . $f) : '')($doc['Photo'] ?? null);
               ?>
               <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar avatar--sm avatar--green"><?= $initials ?></div>
+                <?php if ($docPhotoUrl): ?>
+                  <img src="<?= esc($docPhotoUrl) ?>" alt=""
+                       style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                <?php else: ?>
+                  <div class="avatar avatar--sm avatar--green"><?= $initials ?></div>
+                <?php endif; ?>
                 <div class="td--name"><?= esc($doc['Doctor_name']) ?></div>
               </div>
             </td>

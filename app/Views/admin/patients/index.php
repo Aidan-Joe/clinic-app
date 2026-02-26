@@ -43,9 +43,15 @@ $activeNav   = 'patients';
                 $initials = implode('', array_map(fn($w) => strtoupper($w[0]),
                   array_slice(explode(' ', $p['Patient_name']), 0, 2)
                 ));
+                $ptPhotoUrl = (fn($f) => $f && file_exists(FCPATH . 'uploads/avatars/' . $f) ? base_url('uploads/avatars/' . $f) : '')($p['Photo'] ?? null);
               ?>
               <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar avatar--sm avatar--teal"><?= $initials ?></div>
+                <?php if ($ptPhotoUrl): ?>
+                  <img src="<?= esc($ptPhotoUrl) ?>" alt=""
+                       style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                <?php else: ?>
+                  <div class="avatar avatar--sm avatar--teal"><?= $initials ?></div>
+                <?php endif; ?>
                 <div class="td--name"><?= esc($p['Patient_name']) ?></div>
               </div>
             </td>

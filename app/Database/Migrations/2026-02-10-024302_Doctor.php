@@ -18,7 +18,6 @@ class Doctor extends Migration
         ]);
 
         $this->forge->addKey('DoctorCode', true);
-        
 
         $this->forge->createTable('doctor', true, ['ENGINE' => 'InnoDB']);
     }

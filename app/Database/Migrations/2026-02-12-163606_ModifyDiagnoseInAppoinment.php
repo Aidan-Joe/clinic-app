@@ -29,4 +29,3 @@ class ModifyDiagnoseInAppointment extends Migration
     }
 }
 
-
