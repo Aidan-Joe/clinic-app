@@ -41,6 +41,7 @@ class AdminController extends BaseController
         $data['doctors']  = $model->findAll();
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'doctors';
 
         return view('admin/doctors/index', $data);
     }
@@ -113,6 +114,7 @@ class AdminController extends BaseController
         $data['patients'] = $model->findAll();
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'patients';
 
         return view('admin/patients/index', $data);
     }
@@ -187,6 +189,7 @@ class AdminController extends BaseController
         $data['appointments'] = $appointmentModel->getAllFullAppointments();
         $data['authName']     = session()->get('name');
         $data['authCode']     = session()->get('code');
+        $data['activeNav']    = 'appointments';
 
         return view('admin/appointments/index', $data);
     }
@@ -263,6 +266,7 @@ class AdminController extends BaseController
         $data['rooms']    = $model->findAll();
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'rooms';
 
         return view('admin/rooms/index', $data);
     }
@@ -325,6 +329,7 @@ class AdminController extends BaseController
         $data['records']  = $model->getWithRelation();
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'records';
 
         return view('admin/records/index', $data);
     }

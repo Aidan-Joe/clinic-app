@@ -9,55 +9,113 @@ class Appointment extends ResourceController
     protected $modelName = 'App\Models\AppointmentModel';
     protected $format    = 'json';
 
-    protected function checkRole($allowed)
+    protected function checkLogin()
     {
-        $role = $this->request->getHeaderLine('X-ROLE');
-        if (!in_array($role, $allowed)) {
-            return $this->failForbidden('Akses ditolak');
+        if (!session()->get('logged_in')) {
+            return $this->failUnauthorized();
         }
     }
-
-    public function index()
-    {
-        if ($res = $this->checkRole(['admin','doctor','patient'])) return $res;
-
-        return $this->respond($this->model->findAll());
-    }
-
     public function show($id = null)
     {
-        if ($res = $this->checkRole(['admin','doctor','patient'])) return $res;
+        if ($res = $this->checkLogin()) return $res;
 
-        $data = $this->model->find($id);
-        if (!$data) return $this->failNotFound();
+        $appointment = $this->model->find($id);
 
-        return $this->respond($data);
+        if (!$appointment) {
+            return $this->failNotFound('Appointment tidak ditemukan');
+        }
+
+        $role = session()->get('role');
+        $code = session()->get('code');
+
+        if ($role === 'admin') {
+            return $this->respond($appointment);
+        }
+
+        if ($role === 'doctor' && $appointment['DoctorCode'] === $code) {
+            return $this->respond($appointment);
+        }
+
+        if ($role === 'patient' && $appointment['Patientcode'] === $code) {
+            return $this->respond($appointment);
+        }
+
+        return $this->failForbidden();
+    }
+    public function index()
+    {
+        if ($res = $this->checkLogin()) return $res;
+
+        $role = session()->get('role');
+        $code = session()->get('code');
+
+        if ($role === 'admin') {
+            return $this->respond($this->model->findAll());
+        }
+
+        if ($role === 'doctor') {
+            return $this->respond(
+                $this->model->where('DoctorCode', $code)->findAll()
+            );
+        }
+
+        if ($role === 'patient') {
+            return $this->respond(
+                $this->model->where('Patientcode', $code)->findAll()
+            );
+        }
+
+        return $this->failForbidden();
     }
 
     public function create()
     {
-        if ($res = $this->checkRole(['admin'])) return $res;
+        if ($res = $this->checkLogin()) return $res;
 
-        $this->model->save($this->request->getJSON(true));
+        $role = session()->get('role');
+        $code = session()->get('code');
 
-        return $this->respondCreated(['message'=>'Appointment created']);
+        if (!in_array($role, ['admin', 'patient'])) {
+            return $this->failForbidden();
+        }
+
+        $data = $this->request->getJSON(true);
+
+        if ($role === 'patient') {
+            $data['Patientcode'] = $code;
+        }
+
+        $data['Appointmentcode'] = $this->model->nextCode();
+        $data['Status'] = 'scheduled';
+
+        $this->model->insert($data);
+
+        return $this->respondCreated(['message' => 'Appointment created']);
     }
 
     public function update($id = null)
     {
-        if ($res = $this->checkRole(['admin','doctor'])) return $res;
+        if ($res = $this->checkLogin()) return $res;
+
+        if (session()->get('role') !== 'admin') {
+            return $this->failForbidden();
+        }
 
         $this->model->update($id, $this->request->getJSON(true));
 
-        return $this->respond(['message'=>'Appointment updated']);
+        return $this->respond(['message' => 'Appointment updated']);
     }
 
     public function delete($id = null)
     {
-        if ($res = $this->checkRole(['admin'])) return $res;
+        if ($res = $this->checkLogin()) return $res;
+
+        if (session()->get('role') !== 'admin') {
+            return $this->failForbidden();
+        }
 
         $this->model->delete($id);
 
-        return $this->respondDeleted(['message'=>'Appointment deleted']);
+        return $this->respondDeleted(['message' => 'Appointment deleted']);
     }
 }

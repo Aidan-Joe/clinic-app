@@ -63,6 +63,7 @@ class PatientController extends BaseController
         $data['appointments'] = (new AppointmentModel())->getAppointmentsByPatient($patientCode);
         $data['authName']     = $patient['Patient_name'] ?? session()->get('name');
         $data['authPhoto']    = $patient['Photo'] ?? null;
+        $data['activeNav']    = 'appointments';
 
         return view('patient/appointments', $data);
     }
@@ -75,6 +76,8 @@ class PatientController extends BaseController
         $data['records']  = (new MedicalRecordModel())->getByPatient($patientCode);
         $data['authName'] = $patient['Patient_name'] ?? session()->get('name');
         $data['authPhoto'] = $patient['Photo'] ?? null;
+        $data['activeNav'] = 'records';
+
 
         return view('patient/records', $data);
     }
@@ -116,6 +119,8 @@ class PatientController extends BaseController
         $data['patient']  = $patient;
         $data['authName']  = $patient['Patient_name'] ?? session()->get('name');
         $data['authPhoto'] = $patient['Photo'] ?? null;
+        $data['activeNav'] = 'profile';
+
 
         return view('patient/profile', $data);
     }
