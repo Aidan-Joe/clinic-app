@@ -14,10 +14,10 @@ class RoomCode extends Migration
             'Status' => ['type' => 'ENUM', 'constraint' => ['Available', 'Occupied'], 'null' => FALSE],
         ]);
         $this->forge->addKey('Room_Code', true);
-        $this->forge->createTable('Room');
+        $this->forge->createTable('room', true, ['ENGINE' => 'InnoDB']);
     }
 
     public function down() {
-        $this->forge->dropTable('Room');
+        $this->forge->dropTable('room');
     }
 }

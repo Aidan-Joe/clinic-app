@@ -14,7 +14,7 @@ class Appointment extends Migration
             'DoctorCode' => ['type' => 'VARCHAR', 'constraint' => 5],
             'AdminCode' => ['type' => 'VARCHAR', 'constraint' => 5],
             'RecordCode' => ['type' => 'VARCHAR', 'constraint' => 5],
-            'Room_Code' => ['type' => 'INT', 'constraint' => 5],
+            'Room_Code' => ['type' => 'VARCHAR', 'constraint' => 5],
             'Diagnosis' => ['type' => 'VARCHAR', 'constraint' => 255],
             'Treatment' => ['type' => 'VARCHAR', 'constraint' => 255],
         ]);
@@ -24,6 +24,7 @@ class Appointment extends Migration
         $this->forge->addForeignKey('DoctorCode', 'doctor', 'DoctorCode', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('AdminCode', 'admin', 'AdminCode', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('RecordCode', 'medicalrecord', 'RecordCode', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('Room_Code', 'room', 'Room_Code', 'CASCADE', 'CASCADE');
         $this->forge->createTable('appointment', true, ['ENGINE' => 'InnoDB']);
     }
 

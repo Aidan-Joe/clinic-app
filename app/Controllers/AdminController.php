@@ -50,6 +50,7 @@ class AdminController extends BaseController
     {
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'doctors';
         return view('admin/doctors/create', $data);
     }
 
@@ -76,6 +77,7 @@ class AdminController extends BaseController
         $data['doctor']   = $model->find($id);
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'doctors';
 
         return view('admin/doctors/edit', $data);
     }
@@ -99,6 +101,7 @@ class AdminController extends BaseController
     {
         $model  = new DoctorModel();
         $doctor = $model->find($id);
+        $data['activeNav'] = 'doctors';
         $photo = $doctor['Photo'] ?? null;
         if ($photo && file_exists(FCPATH . 'uploads/avatars/' . $photo)) {
             unlink(FCPATH . 'uploads/avatars/' . $photo);
@@ -123,6 +126,7 @@ class AdminController extends BaseController
     {
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'patients';
         return view('admin/patients/create', $data);
     }
 
@@ -150,6 +154,7 @@ class AdminController extends BaseController
         $data['patient']  = $model->find($id);
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'patients';
 
         return view('admin/patients/edit', $data);
     }
@@ -173,6 +178,7 @@ class AdminController extends BaseController
     public function deletePatient($id)
     {
         $model   = new PatientModel();
+        $data['activeNav'] = 'patients';
         $patient = $model->find($id);
         $photo = $patient['Photo'] ?? null;
         if ($photo && file_exists(FCPATH . 'uploads/avatars/' . $photo)) {
@@ -201,6 +207,7 @@ class AdminController extends BaseController
         $data['rooms']    = (new RoomModel())->findAll();
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav']    = 'appointments';
 
         return view('admin/appointments/create', $data);
     }
@@ -232,6 +239,7 @@ class AdminController extends BaseController
         $data['rooms']       = (new RoomModel())->findAll();
         $data['authName']    = session()->get('name');
         $data['authCode']    = session()->get('code');
+        $data['activeNav']    = 'appointments';
 
         return view('admin/appointments/edit', $data);
     }
@@ -256,6 +264,7 @@ class AdminController extends BaseController
     {
         $model = new AppointmentModel();
         $model->delete($id);
+        $data['activeNav']    = 'appointments';
 
         return redirect()->to('/admin/appointments')->with('success', 'Appointment deleted.');
     }
@@ -275,6 +284,8 @@ class AdminController extends BaseController
     {
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'rooms';
+
         return view('admin/rooms/create', $data);
     }
 
@@ -298,6 +309,8 @@ class AdminController extends BaseController
         $data['room']     = $model->find($id);
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'rooms';
+
 
         return view('admin/rooms/edit', $data);
     }
@@ -319,6 +332,8 @@ class AdminController extends BaseController
     {
         $model = new RoomModel();
         $model->delete($id);
+        $data['activeNav'] = 'rooms';
+
 
         return redirect()->to('/admin/rooms')->with('success', 'Room deleted.');
     }
@@ -340,6 +355,7 @@ class AdminController extends BaseController
         $data['patients'] = (new PatientModel())->findAll();
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'records';
 
         return view('admin/records/create', $data);
     }
@@ -369,6 +385,7 @@ class AdminController extends BaseController
         $data['patients'] = (new PatientModel())->findAll();
         $data['authName'] = session()->get('name');
         $data['authCode'] = session()->get('code');
+        $data['activeNav'] = 'records';
 
         return view('admin/records/edit', $data);
     }
@@ -392,6 +409,7 @@ class AdminController extends BaseController
     {
         $model = new MedicalRecordModel();
         $model->delete($id);
+        $data['activeNav'] = 'records';
 
         return redirect()->to('/admin/records')->with('success', 'Record deleted.');
     }
