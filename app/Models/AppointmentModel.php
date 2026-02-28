@@ -102,22 +102,23 @@ class AppointmentModel extends Model
     public function getTodayFullAppointments()
     {
         return $this->select('
-            appointment.Appointmentcode,
-            appointment.Appointment_date,
-            appointment.Appointment_time  as time,
-            appointment.Symptoms          as symptoms,
-            appointment.Status            as status,
-            appointment.Room_Code,
-            patient.Patient_name          as patient_name,
-            patient.Patientcode           as patient_code,
-            doctor.Doctor_name            as doctor_name,
-            doctor.Specialization         as spec,
-            room.Room_Code                as room
-        ')
+        appointment.Appointmentcode,
+        appointment.Appointment_date,
+        appointment.Appointment_time  as time,
+        appointment.Symptoms          as symptoms,
+        appointment.Status            as status,
+        appointment.Room_Code,
+        patient.Patient_name          as patient_name,
+        patient.Patientcode           as patient_code,
+        doctor.Doctor_name            as doctor_name,
+        doctor.Specialization         as spec,
+        room.Room_Code                as room
+    ')
             ->join('patient', 'patient.Patientcode = appointment.Patientcode')
             ->join('doctor', 'doctor.DoctorCode = appointment.DoctorCode')
             ->join('room', 'room.Room_Code = appointment.Room_Code', 'left')
             ->where('Appointment_date', date('Y-m-d'))
+            ->orderBy('Appointment_date', 'DESC')
             ->orderBy('Appointment_time', 'ASC')
             ->findAll();
     }
@@ -142,8 +143,7 @@ class AppointmentModel extends Model
             ->join('patient', 'patient.Patientcode = appointment.Patientcode')
             ->join('doctor', 'doctor.DoctorCode = appointment.DoctorCode')
             ->join('room', 'room.Room_Code = appointment.Room_Code', 'left')
-            ->orderBy('Appointment_date', 'DESC')
-            ->orderBy('Appointment_time', 'ASC')
+            ->orderBy('CAST(SUBSTR(appointment.Appointmentcode,3) AS UNSIGNED) DESC', '', false)
             ->findAll();
     }
 

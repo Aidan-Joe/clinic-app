@@ -13,7 +13,7 @@ class AppointmentController extends BaseController
     public function index()
     {
         $model = new AppointmentModel();
-        $data['appointments'] = $model->findAll();
+       $data['appointments'] = $model ->orderBy('CAST(SUBSTR(Appointmentcode,3) AS UNSIGNED)', 'DESC') ->findAll();
 
         return view('appointment/index', $data);
     }

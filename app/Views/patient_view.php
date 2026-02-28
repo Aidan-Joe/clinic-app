@@ -197,9 +197,9 @@ $activeNav = 'dashboard';
       <?= csrf_field() ?>
 
       <div class="form-group">
-        <label>Doctor</label>
+        <label class="form-label">Doctor</label>
         <select name="DoctorCode" class="form-control" required>
-          <option value="">Select doctor</option>
+          <option value="">Select a doctor…</option>
           <?php if (!empty($doctors)): ?>
             <?php foreach ($doctors as $doc): ?>
               <option value="<?= esc((string) $doc['DoctorCode']) ?>">
@@ -211,21 +211,28 @@ $activeNav = 'dashboard';
         </select>
       </div>
 
-      <div class="form-group">
-        <label>Date</label>
-        <input type="date" name="Appointment_date"
-          min="<?= date('Y-m-d') ?>" required>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Date</label>
+          <input type="date" name="Appointment_date"
+            class="form-control"
+            min="<?= date('Y-m-d') ?>" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Time</label>
+          <input type="time" name="Appointment_time"
+            class="form-control" required>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Time</label>
-        <input type="time" name="Appointment_time" required>
+      <div class="form-group" style="margin-top:12px;">
+        <label class="form-label">Symptoms <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-400);">(optional)</span></label>
+        <textarea name="Symptoms" class="form-control"
+          placeholder="Briefly describe your symptoms…"></textarea>
       </div>
 
-      <div class="form-group">
-        <label>Symptoms</label>
-        <textarea name="Symptoms"></textarea>
-      </div>
+      <div style="border-top:1px solid var(--border);margin:16px 0 14px;"></div>
 
       <button type="submit" class="btn btn--primary" style="width:100%;">
         Request Appointment
